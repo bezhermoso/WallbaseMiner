@@ -1,0 +1,11 @@
+{
+    "name": "WallbaseMiner",
+    "description": "Back-end service for mining Wallbase images.",
+    "license": "MIT License",
+    "keywords": ["wallbase", "zf2"],
+    "homepage": "http://bez.im/wallbase-miner",
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": "2.2.*"
+    }
+}
