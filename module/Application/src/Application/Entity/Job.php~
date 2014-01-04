@@ -1,0 +1,116 @@
+<?php
+/**
+ * Copyright 2014 Bezalel Hermoso <bezalelhermoso@gmail.com>
+ * 
+ * This project is free software released under the MIT license:
+ * http://www.opensource.org/licenses/mit-license.php 
+ */
+
+namespace Application\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use WbMiner\Image\ImageInterface;
+use WbMiner\Job\JobInterface;
+use Zend\Stdlib\Hydrator\HydratorInterface;
+
+/**
+ * Class Job
+ *
+ * @author Bezalel Hermoso <bezalelhermoso@gmail.com>
+ * @package Application\Entity
+ *
+ * @ORM\Entity
+ * @ORM\Table(name="job")
+ */
+class Job implements JobInterface
+{
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue
+     * @ORM\Column(name="id", type="integer")
+     */
+    protected $jobId;
+
+    /**
+     * @var ImageInterface
+     */
+    protected $image;
+
+    /**
+     * @ORM\Column(name="origin_id", type="integer")
+     */
+    protected $originId;
+
+    /**
+     * @ORM\Column(name="purity_level", type="integer")
+     */
+    protected $purityLevel;
+
+    /**
+     * @ORM\Column(name="tags", type="json_array")
+     */
+    protected $tags;
+
+    public static $imageClass = 'Application\Entity\Image';
+
+    public static $imageHydrator = 'Application\Entity\Hydrator\ImageHydrator';
+
+    public function getJobId()
+    {
+        return $this->jobId;
+    }
+
+    public function setImage(ImageInterface $image)
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * @return ImageInterface
+     */
+    public function getImage()
+    {
+        if (null === $this->image) {
+            $image = new self::$imageClass;
+            $hydrator = static::getHydrator();
+            $hydrator->hydrate(array(
+                'originId' => $this->originId,
+                'purityLevel' => $this->purityLevel,
+                'tags' => $this->tags
+            ), $image);
+            $this->image = $image;
+        }
+
+        return $this->image;
+    }
+
+    /**
+     * @return HydratorInterface
+     */
+    public static function getHydrator()
+    {
+        
+        if (is_string(static::$imageHydrator)) {
+            static::setHydrator(static::$imageHydrator);
+        }
+        
+        return static::$imageHydrator;
+    }
+
+    /**
+     * @param HydratorInterface|string $hydrator
+     * @throws \RuntimeException
+     */
+    public static function setHydrator($hydrator)
+    {
+        if ($hydrator instanceof HydratorInterface) {
+            static::$imageHydrator = $hydrator;
+        } elseif (is_string($hydrator)) {
+            static::$imageHydrator = new $hydrator;
+        } else {
+            throw new \RuntimeException('Cannot construct a valid image hydrator.');
+        }
+    }
+}

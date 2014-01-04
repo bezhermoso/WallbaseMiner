@@ -9,6 +9,9 @@
 
 namespace Application;
 
+use Application\Entity\Hydrator\ImageHydrator;
+use Application\Entity\Job;
+use Application\Event\XSAccessListener;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 
@@ -19,6 +22,10 @@ class Module
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
+
+        $xsAccessListener = new XSAccessListener();
+        $xsAccessListener->attach($eventManager);
+
     }
 
     public function getConfig()

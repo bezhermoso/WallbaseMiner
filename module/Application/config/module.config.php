@@ -8,6 +8,22 @@
  */
 
 return array(
+    'doctrine' => array(
+        'driver' => array(
+            'application_annotation_driver' => array(
+                'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
+                'cache' => 'array',
+                'paths' => array(
+                    __DIR__ . '/../src/Application/Entity'
+                )
+            ),
+            'orm_default' => array(
+                'drivers' => array(
+                    'Application\Entity' => 'application_annotation_driver'
+                )
+            )
+        ),
+    ),
     'router' => array(
         'routes' => array(
             'home' => array(
@@ -20,36 +36,16 @@ return array(
                     ),
                 ),
             ),
-            // The following is a route to simplify getting started creating
-            // new controllers and actions without needing to create a new
-            // module. Simply drop new controllers in, and you can access them
-            // using the path /application/:controller/:action
-            'application' => array(
-                'type'    => 'Literal',
+            'job-request' => array(
+                'type' => 'literal',
                 'options' => array(
-                    'route'    => '/application',
+                    'route' => '/api/job-request',
                     'defaults' => array(
-                        '__NAMESPACE__' => 'Application\Controller',
-                        'controller'    => 'Index',
-                        'action'        => 'index',
+                        'controller' => 'Application\Controller\JobRequest',
+                        'action' => 'job-request'
                     ),
-                ),
-                'may_terminate' => true,
-                'child_routes' => array(
-                    'default' => array(
-                        'type'    => 'Segment',
-                        'options' => array(
-                            'route'    => '/[:controller[/:action]]',
-                            'constraints' => array(
-                                'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                                'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
-                            ),
-                            'defaults' => array(
-                            ),
-                        ),
-                    ),
-                ),
-            ),
+                )
+            )
         ),
     ),
     'service_manager' => array(
@@ -74,6 +70,9 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'Application\Controller\Index' => 'Application\Controller\IndexController'
+        ),
+        'factories' => array(
+            'Application\Controller\JobRequest' => 'Application\Service\JobRequestControllerFactory'
         ),
     ),
     'view_manager' => array(
