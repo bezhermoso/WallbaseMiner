@@ -1,0 +1,29 @@
+WbMiner\Entity\Image:
+  type: mappedSuperclass
+
+  id:
+    originId:
+      column: id
+      type: integer
+
+  fields:
+    tags:
+      type: json_array
+
+    purityLevel:
+      column: purity_level
+      type: integer
+
+    originFormat:
+      column: origin_format
+      type: string
+      nullable: true
+
+    fileName:
+      column: file_name
+      type: text
+      nullable: true
+
+    originUrl:
+      column: origin_url
+      type: string

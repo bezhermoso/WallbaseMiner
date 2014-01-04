@@ -6,15 +6,10 @@
  * http://www.opensource.org/licenses/mit-license.php 
  */
 
-namespace WbMiner\Job\Provider;
+namespace WbMiner\Job\Process;
 
 
-use WbMiner\Entity\JobInterface;
-
-interface ProviderInterface
+class DoctrineProcessor
 {
-    /**
-     * @return \Iterator|JobInterface[]
-     */
-    public function getJobs();
-}
+
+} 

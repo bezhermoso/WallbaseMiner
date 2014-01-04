@@ -6,17 +6,22 @@
  * http://www.opensource.org/licenses/mit-license.php 
  */
 
-namespace WbMiner\Job\Process;
+namespace Application\Model;
 
 
 use WbMiner\Entity\JobInterface;
+use WbMiner\Job\Process\ProcessorInterface;
 use WbMiner\Job\Process\ProcessResult;
 
-interface ProcessorInterface
+class SaveImageProcessor implements ProcessorInterface
 {
+
     /**
-     * @param JobInterface $job
+     * @param \WbMiner\Entity\JobInterface $job
      * @return ProcessResult
      */
-    public function process(JobInterface $job);
-} 
+    public function process(JobInterface $job)
+    {
+
+    }
+}

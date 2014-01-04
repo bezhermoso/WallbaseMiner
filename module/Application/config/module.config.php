@@ -8,6 +8,13 @@
  */
 
 return array(
+    'wb-miner' => array(
+        'doctrine' => array(
+            'orm' => array(
+                'job_class' => 'Application\Entity\Job'
+            )
+        )
+    ),
     'doctrine' => array(
         'driver' => array(
             'application_annotation_driver' => array(
@@ -19,7 +26,7 @@ return array(
             ),
             'orm_default' => array(
                 'drivers' => array(
-                    'Application\Entity' => 'application_annotation_driver'
+                    'Application\Entity' => 'application_annotation_driver',
                 )
             )
         ),

@@ -9,12 +9,7 @@
 namespace WbMiner\Job\Provider;
 
 
-use WbMiner\Entity\JobInterface;
-
-interface ProviderInterface
+interface LimitAwareInterface
 {
-    /**
-     * @return \Iterator|JobInterface[]
-     */
-    public function getJobs();
-}
+    public function setLimit($limit);
+} 

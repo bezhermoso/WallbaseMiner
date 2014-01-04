@@ -1,0 +1,25 @@
+WbMiner\Entity\Job:
+  type: mappedSuperclass
+
+  id:
+    jobId:
+      column: id
+      type: integer
+      generator:
+        strategy: AUTO
+
+  fields:
+    originId:
+      column: origin_id
+      type: integer
+
+    tags:
+      type: json_array
+
+    purityLevel:
+      column: purity_level
+      type: integer
+
+    originUrl:
+      column: origin_url
+      type: string

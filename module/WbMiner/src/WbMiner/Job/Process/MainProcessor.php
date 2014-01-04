@@ -9,16 +9,17 @@
 namespace WbMiner\Job\Process;
 
 
-use Doctrine\Common\EventManager;
-use WbMiner\Job\JobInterface;
+use WbMiner\Entity\JobInterface;
+use WbMiner\Job\Provider\LimitAwareInterface;
 use WbMiner\Job\Provider\ProviderInterface;
+use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 
-class MainProcessor implements ProcessorInterface, EventManagerAwareInterface
+class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, LimitAwareInterface
 {
     /**
-     * @var \WbMiner\Job\Provider\ProviderInterface
+     * @var \WbMiner\Job\Provider\ProviderInterface|LimitAwareInterface
      */
     protected $provider;
 
@@ -31,6 +32,8 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface
      * @var EventManagerInterface
      */
     protected $events;
+
+    protected $limit;
 
     public function __construct(ProviderInterface $provider, ProcessorInterface $processor)
     {
@@ -52,9 +55,18 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface
 
     public function process(JobInterface $job = null)
     {
-        foreach ($this->provider->getJobs() as $job) {
+        if ($this->limit !== null && $this->provider instanceof LimitAwareInterface) {
+            $this->provider->setLimit($this->limit);
+        }
+
+        $jobs = $this->provider->getJobs();
+
+        foreach ($jobs as $job) {
+
             try {
+
                 $result = $this->processor->process($job);
+
                 if ($result->getStatus() == ProcessResult::SUCCESSFUL) {
                     $this->getEventManager()->trigger('process.post', $this, array(
                         'job' => $job,
@@ -66,6 +78,7 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface
                         'result' => $result
                     ));
                 }
+
             } catch (\Exception $e) {
                 $this->getEventManager()->trigger('process.error', $this, array(
                     'job' => $job,
@@ -90,6 +103,13 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface
             get_called_class(),
         ));
         $this->events = $eventManager;
+        return $this;
+    }
+
+    public function setLimit($limit)
+    {
+        $this->limit = $limit;
+
         return $this;
     }
 }

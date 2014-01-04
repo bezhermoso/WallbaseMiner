@@ -6,30 +6,23 @@
  * http://www.opensource.org/licenses/mit-license.php 
  */
 
-namespace Application\Entity;
+namespace WbMiner\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use WbMiner\Image\ImageInterface;
-use WbMiner\Job\JobInterface;
+use WbMiner\Entity\ImageInterface;
+use WbMiner\Entity\JobInterface;
 use Zend\Stdlib\Hydrator\ClassMethods;
 use Zend\Stdlib\Hydrator\HydratorInterface;
 
 /**
  * Class Job
  *
- * @author Bezalel Hermoso <bezalelhermoso@gmail.com>
- * @package Application\Entity
  *
- * @ORM\Entity
- * @ORM\Table(name="job")
+ *
+ * @author Bezalel Hermoso <bezalelhermoso@gmail.com>
+ * @package WbMiner\Entity
  */
 class Job implements JobInterface
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(name="id", type="integer")
-     */
     protected $jobId;
 
     /**
@@ -37,20 +30,13 @@ class Job implements JobInterface
      */
     protected $image;
 
-    /**
-     * @ORM\Column(name="origin_id", type="integer")
-     */
     protected $originId;
 
-    /**
-     * @ORM\Column(name="purity_level", type="integer")
-     */
     protected $purityLevel;
 
-    /**
-     * @ORM\Column(name="tags", type="json_array")
-     */
     protected $tags;
+
+    protected $originUrl;
 
     public static $imageClass = 'Application\Entity\Image';
 
@@ -72,17 +58,16 @@ class Job implements JobInterface
     }
 
     /**
-     * @return ImageInterface
+     * @return \WbMiner\Entity\ImageInterface
      */
     public function getImage()
     {
-        $image = new self::$imageClass;
-
-        $hydrator = static::getHydrator();
-
-        $hydrator->hydrate($hydrator->extract($this), $image);
-
-        $this->image = $image;
+        if (null === $this->image) {
+            $image = new static::$imageClass;
+            $hydrator = static::getHydrator();
+            $hydrator->hydrate($hydrator->extract($this), $image);
+            $this->image = $image;
+        }
 
         return $this->image;
     }
@@ -182,5 +167,17 @@ class Job implements JobInterface
     public function getTags()
     {
         return $this->tags;
+    }
+
+    public function setOriginUrl($url)
+    {
+        $this->originUrl = $url;
+
+        return $this;
+    }
+
+    public function getOriginUrl()
+    {
+        return $this->originUrl;
     }
 }

@@ -6,15 +6,8 @@
  * http://www.opensource.org/licenses/mit-license.php 
  */
 
-namespace WbMiner\Job\Provider;
+namespace WbMiner\Exception;
 
 
-use WbMiner\Entity\JobInterface;
-
-interface ProviderInterface
-{
-    /**
-     * @return \Iterator|JobInterface[]
-     */
-    public function getJobs();
-}
+class IOException extends \RuntimeException
+{ }

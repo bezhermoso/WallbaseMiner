@@ -14,13 +14,13 @@ use Application\Entity\Image;
 use Application\Entity\Job;
 use Application\Model\IdOnlyProvider;
 use Doctrine\ORM\EntityManager;
-use WbMiner\Job\JobInterface;
+use WbMiner\Entity\JobInterface;
 use WbMiner\Wallbase;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\AbstractActionController;
-use WbMiner\Image\ImageInterface;
+use WbMiner\Entity\ImageInterface;
 
 class JobRequestController extends AbstractActionController
 {
@@ -66,7 +66,6 @@ class JobRequestController extends AbstractActionController
             '2' => ImageInterface::PURITY_LEVEL_SKETCHY,
         );
 
-
         $jobsData = Json::decode($request->getContent());
 
         if ($jobsData) {
@@ -76,10 +75,14 @@ class JobRequestController extends AbstractActionController
                 if (in_array($jobData->id, $ids)) {
                     continue;
                 }
+
                 $job = new Job();
+
                 $job->setOriginId($jobData->id);
                 $job->setPurityLevel(isset($purityMap[$jobData->purity]) ? $purityMap[$jobData->purity] : null);
                 $job->setTags($jobData->tags);
+                $job->setOriginUrl($jobData->imageUrl);
+
                 $this->em->persist($job);
             }
         }

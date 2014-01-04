@@ -6,15 +6,15 @@
  * http://www.opensource.org/licenses/mit-license.php 
  */
 
-namespace WbMiner\Job\Provider;
+namespace WbMiner\Image;
 
 
-use WbMiner\Entity\JobInterface;
+use Application\Entity\Image;
 
 interface ProviderInterface
 {
     /**
-     * @return \Iterator|JobInterface[]
+     * @var Image[]|\Iterator
      */
-    public function getJobs();
+    public function getImages();
 }

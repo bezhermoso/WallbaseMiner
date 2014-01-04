@@ -35,7 +35,9 @@ $(function () {
                     var item = {
                         tags: [],
                         id: [],
-                        purity: 0
+                        purity: 0,
+                        thumbnail: '',
+                        imageUrl: ''
                     };
 
                     var classes = $(this).attr('class');
@@ -52,7 +54,14 @@ $(function () {
                         item.tags.push(segments[0]);
                     });
 
+                    var $img = $('img.file', this);
+                    var src = $img.data('original');
+
+                    item.thumbnail = src;
+                    item.imageUrl = src.replace(/^http:\/\/thumbs/, "http://wallpapers").replace(/thumb-/, "wallpaper-");
+
                     item.id = $('.wrapper a.closeTrash', this).data('id');
+
                     data.push(item);
                 });
 

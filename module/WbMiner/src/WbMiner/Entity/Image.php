@@ -6,51 +6,24 @@
  * http://www.opensource.org/licenses/mit-license.php 
  */
 
-namespace Application\Entity;
+namespace WbMiner\Entity;
 
 
-use WbMiner\Image\ImageInterface;
-use Doctrine\ORM\Mapping as ORM;
 use WbMiner\Wallbase;
 
-/**
- * Class Image
- *
- *
- * @author Bezalel Hermoso <bezalelhermoso@gmail.com>
- * @package Application\Entity
- *
- * @ORM\Entity
- * @ORM\Table(name="image")
- */
 class Image implements ImageInterface
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(name="id", type="integer")
-     */
     protected $originId;
 
-    /**
-     * @ORM\Column(type="json_array")
-     */
-    protected $tags;
+    protected $tags = array();
 
-    /**
-     * @ORM\Column(name="purity_level", type="integer")
-     */
-    protected $purityLevel;
+    protected $purityLevel = 0;
 
-    /**
-     * @ORM\Column(name="origin_format", type="string")
-     * @var
-     */
-    protected $originFormat = 'jpg';
+    protected $originFormat;
 
-    /**
-     * @ORM\Column(name="file_name", type="text", nullable=true)
-     */
     protected $fileName;
+
+    protected $originUrl;
 
     /**
      * Set originId
@@ -68,7 +41,7 @@ class Image implements ImageInterface
     /**
      * Get originId
      *
-     * @return integer 
+     * @return integer
      */
     public function getOriginId()
     {
@@ -91,7 +64,7 @@ class Image implements ImageInterface
     /**
      * Get tags
      *
-     * @return array 
+     * @return array
      */
     public function getTags()
     {
@@ -114,14 +87,14 @@ class Image implements ImageInterface
     /**
      * Get purityLevel
      *
-     * @return integer 
+     * @return integer
      */
     public function getPurityLevel()
     {
         return $this->purityLevel;
     }
 
-    public function getOriginUrl()
+    public function getOriginUrl2()
     {
         return sprintf('%s/wallpaper/%s.%s', Wallbase::getUrl(), $this->getOriginId(), $this->getOriginFormat());
     }
@@ -142,7 +115,7 @@ class Image implements ImageInterface
     /**
      * Get originFormat
      *
-     * @return string 
+     * @return string
      */
     public function getOriginFormat()
     {
@@ -154,5 +127,49 @@ class Image implements ImageInterface
     public function getHydrator()
     {
         return $this->hydrator;
+    }
+
+    /**
+     * Set fileName
+     *
+     * @param string $fileName
+     * @return Image
+     */
+    public function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    /**
+     * Get fileName
+     *
+     * @return string
+     */
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+
+
+    public function setOriginUrl($url)
+    {
+        $this->originUrl = $url;
+
+        return $this;
+    }
+
+    public function getOriginUrl()
+    {
+        $url = $this->originUrl;
+
+        if (!$this->originFormat) {
+            return $url;
+        } else {
+            $url = substr($url, strrpos($url, '.'));
+            return $url.$this->originFormat;
+        }
     }
 }

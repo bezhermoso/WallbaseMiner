@@ -12,11 +12,11 @@ namespace Application\Model;
 use Application\Entity\Image;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use WbMiner\Image\ImageProviderInterface;
-use WbMiner\Job\JobInterface;
-use WbMiner\Job\Provider\ProviderInterface;
+use WbMiner\Image\ProviderInterface as ImageProvider;
+use WbMiner\Entity\JobInterface;
+use WbMiner\Job\Provider\ProviderInterface as JobProvider;
 
-class IdOnlyProvider implements ImageProviderInterface, ProviderInterface
+class IdOnlyProvider implements JobProvider, ImageProvider
 {
 
     protected $em;

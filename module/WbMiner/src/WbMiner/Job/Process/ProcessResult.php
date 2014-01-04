@@ -9,7 +9,7 @@
 namespace WbMiner\Job\Process;
 
 
-use WbMiner\Job\JobInterface;
+use WbMiner\Entity\JobInterface;
 
 class ProcessResult
 {
@@ -20,7 +20,7 @@ class ProcessResult
     protected $status;
 
     /**
-     * @var \WbMiner\Job\JobInterface
+     * @var \WbMiner\Entity\JobInterface
      */
     protected $job;
 

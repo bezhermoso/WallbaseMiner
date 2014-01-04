@@ -12,8 +12,8 @@ namespace Application\Model;
 use Application\Entity\Image;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use WbMiner\Image\ImageProviderInterface;
-use WbMiner\Job\JobInterface;
+use WbMiner\Image\ProviderInterface;
+use WbMiner\Entity\JobInterface;
 use WbMiner\Job\Provider\ProviderInterface;
 
 class IdOnlyImageProvider implements ProviderInterface
@@ -37,7 +37,7 @@ class IdOnlyImageProvider implements ProviderInterface
     }
 
     /**
-     * @return JobInterface[]
+     * @return \WbMiner\Entity\JobInterface[]
      */
     public function getJobs()
     {

@@ -9,145 +9,18 @@
 namespace Application\Entity;
 
 
-use WbMiner\Image\ImageInterface;
+use WbMiner\Entity\Image as BaseImage;
 use Doctrine\ORM\Mapping as ORM;
-use WbMiner\Wallbase;
 
 /**
  * Class Image
  *
+ * @ORM\Entity
+ * @ORM\Table(name="images")
  *
  * @author Bezalel Hermoso <bezalelhermoso@gmail.com>
  * @package Application\Entity
- *
- * @ORM\Entity
- * @ORM\Table(name="image")
  */
-class Image implements ImageInterface
+class Image extends BaseImage
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(name="id", type="integer")
-     */
-    protected $originId;
-
-    /**
-     * @ORM\Column(type="json_array")
-     */
-    protected $tags;
-
-    /**
-     * @ORM\Column(name="purity_level", type="integer")
-     */
-    protected $purityLevel;
-
-    /**
-     * @ORM\Column(name="origin_format", type="string")
-     * @var
-     */
-    protected $originFormat = 'jpg';
-
-    /**
-     * Set originId
-     *
-     * @param integer $originId
-     * @return Image
-     */
-    public function setOriginId($originId)
-    {
-        $this->originId = $originId;
-
-        return $this;
-    }
-
-    /**
-     * Get originId
-     *
-     * @return integer 
-     */
-    public function getOriginId()
-    {
-        return $this->originId;
-    }
-
-    /**
-     * Set tags
-     *
-     * @param array $tags
-     * @return Image
-     */
-    public function setTags($tags)
-    {
-        $this->tags = $tags;
-
-        return $this;
-    }
-
-    /**
-     * Get tags
-     *
-     * @return array 
-     */
-    public function getTags()
-    {
-        return $this->tags;
-    }
-
-    /**
-     * Set purityLevel
-     *
-     * @param integer $purityLevel
-     * @return Image
-     */
-    public function setPurityLevel($purityLevel)
-    {
-        $this->purityLevel = $purityLevel;
-
-        return $this;
-    }
-
-    /**
-     * Get purityLevel
-     *
-     * @return integer 
-     */
-    public function getPurityLevel()
-    {
-        return $this->purityLevel;
-    }
-
-    public function getOriginUrl()
-    {
-        return sprintf('%s/wallpaper/%s.%s', Wallbase::getUrl(), $this->getOriginId(), $this->getOriginFormat());
-    }
-
-    /**
-     * Set originFormat
-     *
-     * @param string $originFormat
-     * @return Image
-     */
-    public function setOriginFormat($originFormat)
-    {
-        $this->originFormat = $originFormat;
-
-        return $this;
-    }
-
-    /**
-     * Get originFormat
-     *
-     * @return string 
-     */
-    public function getOriginFormat()
-    {
-        return $this->originFormat;
-    }
-
-    public $hydrator;
-
-    public function getHydrator()
-    {
-        return $this->hydrator;
-    }
 }

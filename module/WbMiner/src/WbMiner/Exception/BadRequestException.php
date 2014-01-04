@@ -6,15 +6,13 @@
  * http://www.opensource.org/licenses/mit-license.php 
  */
 
-namespace WbMiner\Job\Provider;
+namespace WbMiner\Exception;
 
 
-use WbMiner\Entity\JobInterface;
-
-interface ProviderInterface
+class BadRequestException extends \Exception
 {
-    /**
-     * @return \Iterator|JobInterface[]
-     */
-    public function getJobs();
+    public function getStatusCode()
+    {
+        return $this->code;
+    }
 }
