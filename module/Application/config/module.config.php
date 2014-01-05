@@ -11,7 +11,8 @@ return array(
     'wb-miner' => array(
         'doctrine' => array(
             'orm' => array(
-                'job_class' => 'Application\Entity\Job'
+                'job_class' => 'Application\Entity\Job',
+                'image_class' => 'Application\Entity\Image',
             )
         )
     ),

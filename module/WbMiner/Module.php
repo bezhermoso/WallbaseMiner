@@ -18,6 +18,8 @@ use Zend\ModuleManager\Feature\ControllerProviderInterface;
 use Zend\ModuleManager\Feature\RouteProviderInterface;
 use Zend\ModuleManager\Feature\ServiceProviderInterface;
 use Zend\ModuleManager\Feature\ViewHelperProviderInterface;
+use Zend\Mvc\MvcEvent;
+use WbMiner\Entity\Image;
 
 class Module implements
     ConfigProviderInterface,
@@ -29,8 +31,15 @@ class Module implements
     ControllerProviderInterface,
     ConsoleUsageProviderInterface
 {
+    public function onBootstrap(MvcEvent $event)
+    {
+        $serviceManager = $event->getApplication()->getServiceManager();
 
+        $config = $serviceManager->get('WbMiner\Config');
 
+        Image::setSavePath(realpath($config->save_image->target_dir));
+
+    }
     /**
      * Return an array for passing to Zend\Loader\AutoloaderFactory.
      *

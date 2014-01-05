@@ -1,5 +1,6 @@
 WbMiner\Entity\Image:
   type: mappedSuperclass
+  repositoryClass: WbMiner\Image\DoctrineRepository
 
   id:
     originId:
@@ -13,11 +14,6 @@ WbMiner\Entity\Image:
     purityLevel:
       column: purity_level
       type: integer
-
-    originFormat:
-      column: origin_format
-      type: string
-      nullable: true
 
     fileName:
       column: file_name

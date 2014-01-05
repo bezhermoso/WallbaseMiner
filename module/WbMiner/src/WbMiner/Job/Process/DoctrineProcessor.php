@@ -9,7 +9,22 @@
 namespace WbMiner\Job\Process;
 
 
-class DoctrineProcessor
-{
+use WbMiner\Entity\JobInterface;
 
-} 
+class DoctrineProcessor implements ProcessorInterface
+{
+    protected $processor;
+
+    public function __construct(ProcessorInterface $processor)
+    {
+        $this->processor = $processor;
+    }
+    /**
+     * @param JobInterface $job
+     * @return ProcessResult
+     */
+    public function process(JobInterface $job)
+    {
+
+    }
+}

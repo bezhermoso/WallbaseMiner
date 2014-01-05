@@ -19,50 +19,82 @@ class ExtensionSwitcherProcessor implements ProcessorInterface
         'jpg', 'jpeg', 'png'
     );
 
+    protected $initialExtension = '';
+
+    protected $attemptedExtensions = array();
 
     /**
-     * @var ProcessorInterface
+     * @var SaveImageProcessor
      */
     protected $processor;
 
-    public  function __construct(ProcessorInterface $processor)
+    public  function __construct(SaveImageProcessor $processor)
     {
         $this->processor = $processor;
     }
+
     /**
      * @param JobInterface $job
+     * @param null $extension
+     * @internal param int|\WbMiner\Job\Process\a $attempt
+     * @internal param bool $firstCall
      * @return ProcessResult
      */
-    public function process(JobInterface $job)
+    public function process(JobInterface $job, $extension = null)
     {
         try {
 
             $result = $this->processor->process($job);
+            return $result;
 
         } catch (BadRequestException $e) {
 
             $image = $job->getImage();
 
-            if ($image instanceof Image
-                && $image->getOriginFormat() != end($this->extensions))
+            if ($image instanceof Image)
             {
-                if ($image->getOriginFormat() == null) {
+                $url = $image->getOriginUrl();
+                $pos = strrpos($url, '.');
+                $extension = substr($url, $pos);
 
-                    $image->setOriginFormat($this->extensions[0]);
-                    $result = $this->process($job);
+                if ($extension === null) {
 
-                } elseif (false !== ($i = array_search($image->getOriginFormat(), $this->extensions))) {
+                    /**
+                     * Loop through possible extensions until BadRequestException is not thrown.
+                     */
+                    $this->initialExtension = $extension;
+                    $this->attemptedExtensions[] = $extension;
 
-                    $image->setOriginFormat($this->extensions[$i + 1]);
-                    $result = $this->process($job);
+                    foreach ($this->extensions as $extension) {
 
+                        if (in_array($extension, $this->attemptedExtensions)) {
+                            continue;
+                        }
+
+                        try {
+
+                            $result = $this->process($job, $extension);
+                            return $result;
+
+                        } catch (BadRequestException $newE) {
+                            continue;
+                        }
+                    }
+
+                    $this->attemptedExtensions = array();
+                    return new ProcessResult(ProcessResult::FAILURE, $job);
+
+                } else { //If extension is defined in process() call.
+
+                    $url = substr($url, 0, $pos) . $extension;
+                    $image->setOriginUrl($url);
+                    $this->processor->process($job);
                 }
+
             } else {
                 return new ProcessResult(ProcessResult::FAILURE, $job);
             }
 
         }
-
-        return $result;
     }
 }

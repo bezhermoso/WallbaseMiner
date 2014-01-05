@@ -9,24 +9,17 @@
 namespace WbMiner\Service;
 
 
+use Doctrine\ORM\EntityManager;
 use WbMiner\Config;
-use WbMiner\Job\Provider\DoctrineProvider;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class DoctrineProviderFactory extends AbstractServiceFactory
+class DoctrineJobRepositoryFactory extends AbstractServiceFactory
 {
 
     function create(ServiceLocatorInterface $locator, Config $config)
     {
-        if (!$config['doctrine']['orm']['job_class'])
-            throw new \RuntimeException('wb-miner.doctrine.orm.job_class must be set.');
-
+        /** @var $em EntityManager */
         $em = $locator->get('WbMiner\Doctrine\EntityManager');
-
-        $provider = new DoctrineProvider(
-                            $em,
-                            $config['doctrine']['orm']['job_class']);
-
-        return $provider;
+        return $em->getRepository($config->doctrine->orm->job_class);
     }
 }

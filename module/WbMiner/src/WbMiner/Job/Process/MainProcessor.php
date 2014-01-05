@@ -15,6 +15,7 @@ use WbMiner\Job\Provider\ProviderInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
+use Zend\Stdlib\ResponseInterface;
 
 class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, LimitAwareInterface
 {
@@ -34,6 +35,12 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
     protected $events;
 
     protected $limit;
+
+    public static $extraParamBlacklist = array(
+        'ProcessResult', 'Exception', 'Job', 'LastResult'
+    );
+
+    const EVENT_MANAGER_ID = 'WbMiner\MainProcessor';
 
     public function __construct(ProviderInterface $provider, ProcessorInterface $processor)
     {
@@ -63,31 +70,49 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
 
         foreach ($jobs as $job) {
 
+            $exception = null;
+
+            $eventName = '';
+
+            $params = array(
+                'Job' => $job
+            );
+
             try {
 
                 $result = $this->processor->process($job);
 
                 if ($result->getStatus() == ProcessResult::SUCCESSFUL) {
-                    $this->getEventManager()->trigger('process.post', $this, array(
-                        'job' => $job,
-                        'result' => $result
-                    ));
+                    $eventName = ProcessEvent::PROCESS_POST;
                 } else {
-                    $this->getEventManager()->trigger('process.failure', $this, array(
-                        'job' => $job,
-                        'result' => $result
-                    ));
+                    $eventName = ProcessEvent::PROCESS_FAILED;
                 }
 
+                $extraParams = $result->getParams();
+                $params = array_merge($params, $extraParams);
+
+                $params['ProcessResult'] = $result;
+
             } catch (\Exception $e) {
-                $this->getEventManager()->trigger('process.error', $this, array(
-                    'job' => $job,
-                    'exception' => $e
-                ));
+                $eventName = ProcessEvent::PROCESS_EXCEPTION;
+                $params['Exception'] = $e;
+            }
+
+            $results = $this->getEventManager()->triggerUntil($eventName, $this, $params, function ($res) {
+                return ($res instanceof ResponseInterface);
+            });
+
+            if ($results->stopped()) {
+                $params['LastResult'] = $results->last();
+                $this->getEventManager()->trigger(ProcessEvent::PROCESS_STOPPED, $this, $params);
+                break;
             }
         }
 
+        $this->getEventManager()->trigger(ProcessEvent::PROCESS_FINISHED, $this);
+
         return new ProcessResult(ProcessResult::SUCCESSFUL);
+
     }
 
     /**
@@ -101,6 +126,7 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
         $eventManager->setIdentifiers(array(
             __CLASS__,
             get_called_class(),
+            self::EVENT_MANAGER_ID,
         ));
         $this->events = $eventManager;
         return $this;

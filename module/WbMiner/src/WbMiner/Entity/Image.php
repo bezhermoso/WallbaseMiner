@@ -19,11 +19,11 @@ class Image implements ImageInterface
 
     protected $purityLevel = 0;
 
-    protected $originFormat;
-
     protected $fileName;
 
     protected $originUrl;
+
+    protected static $savePath = '';
 
     /**
      * Set originId
@@ -99,29 +99,6 @@ class Image implements ImageInterface
         return sprintf('%s/wallpaper/%s.%s', Wallbase::getUrl(), $this->getOriginId(), $this->getOriginFormat());
     }
 
-    /**
-     * Set originFormat
-     *
-     * @param string $originFormat
-     * @return Image
-     */
-    public function setOriginFormat($originFormat)
-    {
-        $this->originFormat = $originFormat;
-
-        return $this;
-    }
-
-    /**
-     * Get originFormat
-     *
-     * @return string
-     */
-    public function getOriginFormat()
-    {
-        return $this->originFormat;
-    }
-
     public $hydrator;
 
     public function getHydrator()
@@ -135,7 +112,7 @@ class Image implements ImageInterface
      * @param string $fileName
      * @return Image
      */
-    public function setFileName($fileName)
+    public function setFilename($fileName)
     {
         $this->fileName = $fileName;
 
@@ -147,7 +124,7 @@ class Image implements ImageInterface
      *
      * @return string
      */
-    public function getFileName()
+    public function getFilename()
     {
         return $this->fileName;
     }
@@ -163,13 +140,16 @@ class Image implements ImageInterface
 
     public function getOriginUrl()
     {
-        $url = $this->originUrl;
+        return $this->originUrl;
+    }
 
-        if (!$this->originFormat) {
-            return $url;
-        } else {
-            $url = substr($url, strrpos($url, '.'));
-            return $url.$this->originFormat;
-        }
+    public static function setSavePath($savePath)
+    {
+        static::$savePath = $savePath;
+    }
+
+    public static function getSavePath()
+    {
+        return static::$savePath;
     }
 }

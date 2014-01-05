@@ -1,5 +1,6 @@
 WbMiner\Entity\Job:
   type: mappedSuperclass
+  repositoryClass: WbMiner\Job\DoctrineRepository
 
   id:
     jobId:
@@ -12,6 +13,7 @@ WbMiner\Entity\Job:
     originId:
       column: origin_id
       type: integer
+      unique: true
 
     tags:
       type: json_array
@@ -23,3 +25,7 @@ WbMiner\Entity\Job:
     originUrl:
       column: origin_url
       type: string
+
+  lifecycleCallbacks:
+    prePersist: [updateFields]
+    preUpdate: [updateFields]

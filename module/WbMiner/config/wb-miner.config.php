@@ -7,21 +7,20 @@
 return array(
     'wb-miner' => array(
         'job_provider' => 'WbMiner\Job\Provider\Doctrine',
-        'job_processor' => 'WbMiner\Job\Processor\ExtensionSwitcher',
+        'job_processor' => 'WbMiner\Job\Processor\SaveImage',
         'main_processor' => 'WbMiner\Job\MainProcessor',
-
         'save_image' => array(
-            'target_dir' => 'public/wb',
-            'url_path' => 'wb',
+            'target_dir' => 'public/wb'
         ),
-
+        'image_repository' => 'WbMiner\ImageRepository\Doctrine',
+        'job_repository' => 'WbMiner\JobRepository\Doctrine',
         'doctrine' => array(
             'orm' => array(
                 'entity_manager' => 'doctrine.entitymanager.orm_default',
                 'image_class' => null,
                 'job_class' => null,
             )
-        )
+        ),
     ),
     'doctrine' => array(
         'driver' => array(

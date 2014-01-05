@@ -43,7 +43,7 @@ class Job implements JobInterface
     /**
      * @var HydratorInterface
      */
-    public static $imageHydrator = 'Application\Entity\Hydrator\ImageHydrator';
+    public static $imageHydrator = 'WbMiner\Entity\Hydrator\ImageHydrator';
 
     public function getJobId()
     {
@@ -65,7 +65,8 @@ class Job implements JobInterface
         if (null === $this->image) {
             $image = new static::$imageClass;
             $hydrator = static::getHydrator();
-            $hydrator->hydrate($hydrator->extract($this), $image);
+            $data = $hydrator->extract($this);
+            $hydrator->hydrate($data, $image);
             $this->image = $image;
         }
 
@@ -100,84 +101,15 @@ class Job implements JobInterface
         }
     }
 
-    /**
-     * Set originId
-     *
-     * @param integer $originId
-     * @return Job
-     */
-    public function setOriginId($originId)
+    public function updateFields()
     {
-        $this->originId = $originId;
+        $image = $this->getImage();
 
-        return $this;
-    }
-
-    /**
-     * Get originId
-     *
-     * @return integer 
-     */
-    public function getOriginId()
-    {
-        return $this->originId;
-    }
-
-    /**
-     * Set purityLevel
-     *
-     * @param integer $purityLevel
-     * @return Job
-     */
-    public function setPurityLevel($purityLevel)
-    {
-        $this->purityLevel = $purityLevel;
-
-        return $this;
-    }
-
-    /**
-     * Get purityLevel
-     *
-     * @return integer 
-     */
-    public function getPurityLevel()
-    {
-        return $this->purityLevel;
-    }
-
-    /**
-     * Set tags
-     *
-     * @param array $tags
-     * @return Job
-     */
-    public function setTags($tags)
-    {
-        $this->tags = $tags;
-
-        return $this;
-    }
-
-    /**
-     * Get tags
-     *
-     * @return array 
-     */
-    public function getTags()
-    {
-        return $this->tags;
-    }
-
-    public function setOriginUrl($url)
-    {
-        $this->originUrl = $url;
-
-        return $this;
-    }
-
-    public function getOriginUrl()
-    {
-        return $this->originUrl;
+        if ($image) {
+            $this->originId = $image->getOriginId();
+            $this->originUrl = $image->getOriginUrl();
+            $this->purityLevel = $image->getPurityLevel();
+            $this->tags = $image->getTags();
+        }
     }
 }

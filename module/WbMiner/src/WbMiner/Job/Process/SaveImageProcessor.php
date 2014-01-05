@@ -39,13 +39,14 @@ class SaveImageProcessor implements ProcessorInterface
         $response = $client->send();
 
         if ($response->getStatusCode() == 200) {
-            $this->writeToDisk($image, $response->getBody());
-            return new ProcessResult(ProcessResult::SUCCESSFUL, $job);
+
+            $output = $this->writeToDisk($image, $response->getBody());
+            $result = new ProcessResult(ProcessResult::SUCCESSFUL, $job);
+            $result->setParam('OutputFile', $output);
+            return $result;
 
         } else {
-
             throw new BadRequestException('Bad request: ' . $client->getUri(), $response->getStatusCode());
-            
         }
     }
 
@@ -60,9 +61,11 @@ class SaveImageProcessor implements ProcessorInterface
         $outputFile = $this->targetDir . '/' . basename($image->getOriginUrl());
 
         if (file_exists($outputFile))
-            return;
+            return $outputFile;
 
-        if (false === @file_put_contents($outputFile, $body)) {
+        if (false !== @file_put_contents($outputFile, $body)) {
+            return $outputFile;
+        } else {
             throw new IOException('Cannot write to ' . $outputFile);
         }
     }

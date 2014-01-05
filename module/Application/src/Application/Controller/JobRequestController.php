@@ -76,14 +76,18 @@ class JobRequestController extends AbstractActionController
                     continue;
                 }
 
-                $job = new Job();
+                $image = new Image();
 
-                $job->setOriginId($jobData->id);
-                $job->setPurityLevel(isset($purityMap[$jobData->purity]) ? $purityMap[$jobData->purity] : null);
-                $job->setTags($jobData->tags);
-                $job->setOriginUrl($jobData->imageUrl);
+                $image->setOriginId($jobData->id);
+                $image->setPurityLevel(isset($purityMap[$jobData->purity]) ? $purityMap[$jobData->purity] : null);
+                $image->setTags($jobData->tags);
+                $image->setOriginUrl($jobData->imageUrl);
+
+                $job = new Job();
+                $job->setImage($image);
 
                 $this->em->persist($job);
+
             }
         }
 

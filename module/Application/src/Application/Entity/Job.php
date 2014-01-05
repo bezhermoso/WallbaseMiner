@@ -18,7 +18,7 @@ use WbMiner\Entity\Job as BaseJob;
  * @package Application\Entity
  *
  * @ORM\Entity
- * @ORM\Table(name="job")
+ * @ORM\Table(name="jobs")
  */
 class Job extends BaseJob
 {

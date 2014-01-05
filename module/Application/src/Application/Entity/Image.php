@@ -17,10 +17,26 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  * @ORM\Table(name="images")
+ * @ORM\HasLifecycleCallbacks
  *
  * @author Bezalel Hermoso <bezalelhermoso@gmail.com>
  * @package Application\Entity
  */
 class Image extends BaseImage
 {
+    /**
+     * @ORM\PrePersist
+     */
+    public function updateFilename()
+    {
+        $filename = $this->getFilename();
+
+        $savePath = static::getSavePath();
+
+        if ($savePath) {
+            $savePath = preg_replace('#^' . preg_quote($savePath) . '/#', '', $filename);
+            $this->setFilename($savePath);
+        }
+
+    }
 }
