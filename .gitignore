@@ -8,3 +8,7 @@ nbproject
 .settings
 composer.lock
 vendor/bin
+vendor
+config/autoload/local.php
+public/wb/*
+!public/wb/.gitkeep
