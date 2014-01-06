@@ -12,3 +12,5 @@ vendor
 config/autoload/local.php
 public/wb/*
 !public/wb/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
