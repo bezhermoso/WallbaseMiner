@@ -62,57 +62,81 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
 
     public function process(JobInterface $job = null)
     {
-        if ($this->limit !== null && $this->provider instanceof LimitAwareInterface) {
-            $this->provider->setLimit($this->limit);
-        }
+        try {
 
-        $jobs = $this->provider->getJobs();
+            if ($this->limit !== null && $this->provider instanceof LimitAwareInterface) {
+                $this->provider->setLimit($this->limit);
+            }
 
-        foreach ($jobs as $job) {
+            $jobs = $this->provider->getJobs();
 
-            $exception = null;
+            $errCount = 0;
+            $exeptionCount = 0;
+            $successCount = 0;
 
-            $eventName = '';
+            foreach ($jobs as $job) {
 
-            $params = array(
-                'Job' => $job
-            );
+                $exception = null;
 
-            try {
+                $eventName = '';
 
-                $result = $this->processor->process($job);
+                $params = array(
+                    'Job' => $job
+                );
 
-                if ($result->getStatus() == ProcessResult::SUCCESSFUL) {
-                    $eventName = ProcessEvent::PROCESS_POST;
-                } else {
-                    $eventName = ProcessEvent::PROCESS_FAILED;
+                try {
+
+                    $result = $this->processor->process($job);
+
+                    if ($result->getStatus() == ProcessResult::SUCCESSFUL) {
+                        $eventName = ProcessEvent::PROCESS_POST;
+                        $successCount++;
+                    } else {
+                        $eventName = ProcessEvent::PROCESS_FAILED;
+                        $errCount++;
+                    }
+
+                    $extraParams = $result->getParams();
+                    $params = array_merge($params, $extraParams);
+
+                    $params['ProcessResult'] = $result;
+
+                } catch (\Exception $e) {
+                    $eventName = ProcessEvent::PROCESS_EXCEPTION;
+                    $params['Exception'] = $e;
+                    $exeptionCount++;
                 }
 
-                $extraParams = $result->getParams();
-                $params = array_merge($params, $extraParams);
+                $results = $this->getEventManager()->triggerUntil($eventName, $this, $params, function ($res) {
+                    return ($res instanceof ResponseInterface);
+                });
 
-                $params['ProcessResult'] = $result;
-
-            } catch (\Exception $e) {
-                $eventName = ProcessEvent::PROCESS_EXCEPTION;
-                $params['Exception'] = $e;
+                if ($results->stopped()) {
+                    $params['LastResult'] = $results->last();
+                    $this->getEventManager()->trigger(ProcessEvent::PROCESS_STOPPED, $this, $params);
+                    break;
+                }
             }
 
-            $results = $this->getEventManager()->triggerUntil($eventName, $this, $params, function ($res) {
-                return ($res instanceof ResponseInterface);
-            });
+            $this->getEventManager()->trigger(ProcessEvent::PROCESS_FINISHED, $this);
 
-            if ($results->stopped()) {
-                $params['LastResult'] = $results->last();
-                $this->getEventManager()->trigger(ProcessEvent::PROCESS_STOPPED, $this, $params);
-                break;
-            }
+            $result = new ProcessResult(ProcessResult::SUCCESSFUL);
+
+            $result->setParam('Jobs', $job);
+
+            $result->setParam('FailureCount', $errCount);
+            $result->setParam('ExceptionCount', $exeptionCount);
+            $result->setParam('SuccessCount', $successCount);
+
+            return $result;
+
+        } catch (\Exception $e) {
+
+            $result = new ProcessResult(ProcessResult::FAILURE, null, $e->getMessage());
+            $result->setParam('Exception', $e);
+
+            return $result;
         }
-
-        $this->getEventManager()->trigger(ProcessEvent::PROCESS_FINISHED, $this);
-
-        return new ProcessResult(ProcessResult::SUCCESSFUL);
-
     }
 
     /**

@@ -34,7 +34,7 @@ class Job implements JobInterface
 
     protected $purityLevel;
 
-    protected $tags;
+    protected $tags = array();
 
     protected $originUrl;
 

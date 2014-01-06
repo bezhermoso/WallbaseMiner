@@ -53,13 +53,4 @@ return array(
             ),
         ),
     ),
-    'controllers' => array(
-        'factories' => array(
-            'WbMiner\Controller\Console' => function (\Zend\ServiceManager\ServiceLocatorInterface $sm) {
-                $processor = $sm->getServiceLocator()->get('WbMiner\Job\MainProcessor');
-                $controller = new \WbMiner\Controller\ConsoleController($processor);
-                return $controller;
-            }
-        )
-    )
 );

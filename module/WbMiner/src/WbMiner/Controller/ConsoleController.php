@@ -10,8 +10,14 @@ namespace WbMiner\Controller;
 
 
 use WbMiner\Job\Process\MainProcessor;
+use WbMiner\Job\Process\ProcessEvent;
+use WbMiner\Job\Process\ProcessResult;
+use Zend\Console\Adapter\AdapterInterface;
 use Zend\Console\Request as ConsoleRequest;
+use Zend\Log\Logger;
+use Zend\Log\LoggerInterface;
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Console\ColorInterface;
 
 class ConsoleController extends AbstractActionController
 {
@@ -20,9 +26,22 @@ class ConsoleController extends AbstractActionController
      */
     protected $mainProcessor;
 
-    function __construct(MainProcessor $processor)
+    protected $consoleAdapter;
+
+    protected $logger;
+
+    public function __construct(MainProcessor $processor, AdapterInterface $adapter, Logger $logger = null)
     {
         $this->mainProcessor = $processor;
+        $this->consoleAdapter = $adapter;
+        $this->logger = $logger;
+    }
+
+    protected function log($level, $message, $extra = array())
+    {
+        if ($this->logger !== null) {
+            $this->logger->log($level, $message, $extra);
+        }
     }
 
     public function processJobsAction()
@@ -38,7 +57,40 @@ class ConsoleController extends AbstractActionController
         if ($limit && is_numeric($limit))
             $this->mainProcessor->setLimit((int) $limit);
 
-        $this->mainProcessor->process();
+        try {
+
+            $this->consoleAdapter->writeLine('');
+            $this->consoleAdapter->writeLine('Processing jobs...');
+            $this->consoleAdapter->writeLine('');
+
+            $result = $this->mainProcessor->process();
+
+            if ($result->getStatus() == ProcessResult::SUCCESSFUL) {
+
+                $str = '';
+
+                $jobs = $result->getParam('Jobs');
+
+                $str = sprintf(
+                    'Processed %d job(s). (%d) successful, (%d) failed [(%d) threw exceptions]',
+                    count($jobs),
+                    $result->getParam('SuccessCount'),
+                    $result->getParam('FailureCount') + $result->getParam('ExceptionCount'),
+                    $result->getParam('ExceptionCount'));
+
+                $this->log(Logger::INFO, $str);
+                $this->consoleAdapter->writeLine($str);
+
+            } else {
+                $str = 'An error was encountered in processing jobs: ' . $result->getParam('Exception')->getMessage();
+                $this->log(Logger::ERR, $str);
+                $this->consoleAdapter->writeLine($str);
+            }
+
+        } catch (\Exception $e) {
+            $this->log(Logger::CRIT, $e->getMessage());
+            $this->consoleAdapter->writeTextBlock($e->getMessage(), 300, null, 0, 0, ColorInterface::WHITE, ColorInterface::RED);
+        }
 
     }
 

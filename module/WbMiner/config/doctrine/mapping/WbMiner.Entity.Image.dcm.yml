@@ -10,6 +10,7 @@ WbMiner\Entity\Image:
   fields:
     tags:
       type: json_array
+      nullable: true
 
     purityLevel:
       column: purity_level

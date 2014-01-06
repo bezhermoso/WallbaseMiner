@@ -26,13 +26,27 @@ class ProcessResult
 
     protected $params = array();
 
-    public function __construct($status, JobInterface $job = null)
+    protected $reason;
+
+    public function __construct($status, JobInterface $job = null, $reason = '')
     {
         $this->status = $status;
 
         if (null !== $job) {
             $this->job = $job;
         }
+
+        $this->reason = $reason;
+    }
+
+    public function setReason($reason)
+    {
+        $this->reason = $reason;
+    }
+
+    public function getReason()
+    {
+        return $this->reason;
     }
 
     public function getStatus()
@@ -60,13 +74,6 @@ class ProcessResult
 
     public function setParam($param, $value)
     {
-        if (in_array($param, MainProcessor::$extraParamBlacklist)) {
-            throw new \DomainException(
-                sprintf('"%s" is a black-listed parameter. Black-listed parameters are: ',
-                    $param,
-                    json_encode(MainProcessor::$extraParamBlacklist)));
-        }
-
         $this->params[$param] = $value;
         return $this;
     }

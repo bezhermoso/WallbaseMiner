@@ -14,7 +14,8 @@ return array(
                 'job_class' => 'Application\Entity\Job',
                 'image_class' => 'Application\Entity\Image',
             )
-        )
+        ),
+        'logger' => 'Application\Log'
     ),
     'doctrine' => array(
         'driver' => array(
@@ -30,6 +31,18 @@ return array(
                     'Application\Entity' => 'application_annotation_driver',
                 )
             )
+        ),
+    ),
+    'log' => array(
+        'Application\Log' => array(
+            'writers' => array(
+                array(
+                    'name' => 'stream',
+                    'options' => array(
+                        'stream' => 'data/logs/app.log'
+                    ),
+                ),
+            ),
         ),
     ),
     'router' => array(
@@ -61,9 +74,17 @@ return array(
             'Zend\Cache\Service\StorageCacheAbstractServiceFactory',
             'Zend\Log\LoggerAbstractServiceFactory',
         ),
+        'invokables' => array(
+            'Application\LoggingExtensionSwitcher' => 'Application\Service\LoggingExtensionSwitcherFactory'
+        ),
         'aliases' => array(
             'translator' => 'MvcTranslator',
         ),
+        'delegators' => array(
+            'WbMiner\Job\Processor\SaveImage' => array(
+                'Application\LoggingExtensionSwitcher'
+            )
+        )
     ),
     'translator' => array(
         'locale' => 'en_US',

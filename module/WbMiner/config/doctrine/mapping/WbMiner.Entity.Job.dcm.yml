@@ -17,6 +17,7 @@ WbMiner\Entity\Job:
 
     tags:
       type: json_array
+      nullable: true
 
     purityLevel:
       column: purity_level

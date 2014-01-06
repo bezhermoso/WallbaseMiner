@@ -48,16 +48,13 @@ class Module
                     ->attach(
                         MainProcessor::EVENT_MANAGER_ID,
                         array(
-                            ProcessEvent::PROCESS_FINISHED,
-                            ProcessEvent::PROCESS_EXCEPTION
+                            ProcessEvent::PROCESS_FINISHED
                         ),
                         function ($e) use ($serviceLocator) {
-                            $em = $serviceLocator->get('WbMiner\Doctrine\EntityManager');
-                            try {
-                                $em->flush();
-                            } catch (\Exception $e) {
 
-                            }
+                            $em = $serviceLocator->get('WbMiner\Doctrine\EntityManager');
+                            $em->flush();
+
                     });
             }
 

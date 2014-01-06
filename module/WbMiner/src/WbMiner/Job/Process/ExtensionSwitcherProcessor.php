@@ -36,6 +36,9 @@ class ExtensionSwitcherProcessor implements ProcessorInterface
     /**
      * @param JobInterface $job
      * @param null $extension
+     * @throws \WbMiner\Exception\BadRequestException
+     * @throws \Exception
+     * @throws \WbMiner\Exception\BadRequestException
      * @internal param int|\WbMiner\Job\Process\a $attempt
      * @internal param bool $firstCall
      * @return ProcessResult
@@ -51,50 +54,55 @@ class ExtensionSwitcherProcessor implements ProcessorInterface
 
             $image = $job->getImage();
 
-            if ($image instanceof Image)
-            {
+            if ($image instanceof Image) {
                 $url = $image->getOriginUrl();
                 $pos = strrpos($url, '.');
-                $extension = substr($url, $pos);
+                $attemptExtension = substr($url, $pos + 1);
 
                 if ($extension === null) {
 
                     /**
                      * Loop through possible extensions until BadRequestException is not thrown.
                      */
-                    $this->initialExtension = $extension;
-                    $this->attemptedExtensions[] = $extension;
+                    $this->initialExtension = $attemptExtension;
+                    $this->attemptedExtensions[] = $attemptExtension;
 
-                    foreach ($this->extensions as $extension) {
+                    foreach ($this->extensions as $attemptExtension) {
 
-                        if (in_array($extension, $this->attemptedExtensions)) {
+                        if (in_array($attemptExtension, $this->attemptedExtensions)) {
                             continue;
                         }
 
                         try {
 
-                            $result = $this->process($job, $extension);
+                            $result = $this->process($job, $attemptExtension);
                             return $result;
 
                         } catch (BadRequestException $newE) {
+                            $this->attemptedExtensions[] = $attemptExtension;
                             continue;
                         }
                     }
 
                     $this->attemptedExtensions = array();
-                    return new ProcessResult(ProcessResult::FAILURE, $job);
+
+                    if ($newE) {
+                        throw $newE;
+                    } else {
+                        throw new BadRequestException(__CLASS__ . ' failed to resolve ' . $image->getOriginUrl() . ' with the proper extension.');
+                    }
 
                 } else { //If extension is defined in process() call.
 
-                    $url = substr($url, 0, $pos) . $extension;
+                    $url = substr($url, 0, $pos + 1) . $extension;
                     $image->setOriginUrl($url);
-                    $this->processor->process($job);
+                    $result = $this->processor->process($job, $extension);
+                    return $result;
                 }
 
             } else {
                 return new ProcessResult(ProcessResult::FAILURE, $job);
             }
-
         }
     }
 }
