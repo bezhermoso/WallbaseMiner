@@ -122,7 +122,7 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
 
             $result = new ProcessResult(ProcessResult::SUCCESSFUL);
 
-            $result->setParam('Jobs', $job);
+            $result->setParam('Jobs', $jobs);
 
             $result->setParam('FailureCount', $errCount);
             $result->setParam('ExceptionCount', $exeptionCount);
