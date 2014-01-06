@@ -75,6 +75,12 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
             $exeptionCount = 0;
             $successCount = 0;
 
+            $this->getEventManager()->attach(ProcessEvent::PROCESS, function (Event $event) {
+                $job = $event->getParam('Job');
+                $processor = $event->getParam('Processor');
+                return $processor->process($job);
+            }, 0);
+
             foreach ($jobs as $job) {
 
                 $exception = null;
@@ -87,12 +93,6 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
                 );
 
                 try {
-
-                    $this->getEventManager()->attach(ProcessEvent::PROCESS, function (Event $event) {
-                        $job = $event->getParam('Job');
-                        $processor = $event->getParam('Processor');
-                        return $processor->process($job);
-                    }, 0);
 
                     $results = $this->getEventManager()->triggerUntil(ProcessEvent::PROCESS, $this, $params, function ($v) {
                         return (!$v instanceof ProcessResult);
