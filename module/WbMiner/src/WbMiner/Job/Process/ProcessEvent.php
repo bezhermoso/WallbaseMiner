@@ -15,6 +15,8 @@ class ProcessEvent
 
     const PROCESS_FAILED = 'process.failed';
 
+    const PROCESS = 'process';
+
     const PROCESS_EXCEPTION = 'process.exception';
 
     const PROCESS_STOPPED = 'process.stopped';

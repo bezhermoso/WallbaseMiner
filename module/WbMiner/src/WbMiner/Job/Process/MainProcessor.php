@@ -12,6 +12,7 @@ namespace WbMiner\Job\Process;
 use WbMiner\Entity\JobInterface;
 use WbMiner\Job\Provider\LimitAwareInterface;
 use WbMiner\Job\Provider\ProviderInterface;
+use Zend\EventManager\Event;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -81,25 +82,46 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
                 $eventName = '';
 
                 $params = array(
-                    'Job' => $job
+                    'Job' => $job,
+                    'Processor' => $this->processor
                 );
 
                 try {
 
-                    $result = $this->processor->process($job);
+                    $this->getEventManager()->attach(ProcessEvent::PROCESS, function (Event $event) {
+                        $job = $event->getParam('Job');
+                        $processor = $event->getParam('Processor');
+                        return $processor->process($job);
+                    }, 0);
 
-                    if ($result->getStatus() == ProcessResult::SUCCESSFUL) {
-                        $eventName = ProcessEvent::PROCESS_POST;
-                        $successCount++;
+                    $results = $this->getEventManager()->triggerUntil(ProcessEvent::PROCESS, $this, $params, function ($v) {
+                        return (!$v instanceof ProcessResult);
+                    });
+
+                    if ($results->stopped()) {
+
+                        $params['LastResult'] = $results->last();
+                        $this->getEventManager()->triggerUntil(ProcessEvent::PROCESS_STOPPED, $params, function ($v) {
+                            return ($v instanceof ResponseInterface);
+                        });
+
                     } else {
-                        $eventName = ProcessEvent::PROCESS_FAILED;
-                        $errCount++;
+
+                        $result = $results->last();
+
+                        if ($result->getStatus() == ProcessResult::SUCCESSFUL) {
+                            $eventName = ProcessEvent::PROCESS_POST;
+                            $successCount++;
+                        } else {
+                            $eventName = ProcessEvent::PROCESS_FAILED;
+                            $errCount++;
+                        }
+
+                        $extraParams = $result->getParams();
+                        $params = array_merge($params, $extraParams);
+
+                        $params['ProcessResult'] = $result;
                     }
-
-                    $extraParams = $result->getParams();
-                    $params = array_merge($params, $extraParams);
-
-                    $params['ProcessResult'] = $result;
 
                 } catch (\Exception $e) {
                     $eventName = ProcessEvent::PROCESS_EXCEPTION;
@@ -107,15 +129,9 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
                     $exeptionCount++;
                 }
 
-                $results = $this->getEventManager()->triggerUntil($eventName, $this, $params, function ($res) {
+                $this->getEventManager()->triggerUntil($eventName, $this, $params, function ($res) {
                     return ($res instanceof ResponseInterface);
                 });
-
-                if ($results->stopped()) {
-                    $params['LastResult'] = $results->last();
-                    $this->getEventManager()->trigger(ProcessEvent::PROCESS_STOPPED, $this, $params);
-                    break;
-                }
             }
 
             $this->getEventManager()->trigger(ProcessEvent::PROCESS_FINISHED, $this);
@@ -123,7 +139,6 @@ class MainProcessor implements ProcessorInterface, EventManagerAwareInterface, L
             $result = new ProcessResult(ProcessResult::SUCCESSFUL);
 
             $result->setParam('Jobs', $jobs);
-
             $result->setParam('FailureCount', $errCount);
             $result->setParam('ExceptionCount', $exeptionCount);
             $result->setParam('SuccessCount', $successCount);
