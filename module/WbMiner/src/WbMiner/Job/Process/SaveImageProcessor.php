@@ -23,7 +23,7 @@ class SaveImageProcessor implements ProcessorInterface
 
     public function __construct($targetDir)
     {
-        $this->targetDir = realpath($targetDir);
+        $this->targetDir = $targetDir;
     }
 
     /**

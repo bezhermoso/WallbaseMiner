@@ -7,6 +7,7 @@
 return array(
     'invokables' => array(
         'WbMiner\Job\Processor\ExtensionSwitcher' => 'WbMiner\Service\ExtensionSwitcherFactory',
+        'WbMiner\Job\LockingMainProcessor' => 'WbMiner\Service\LockingMainProcessorFactory',
     ),
     'factories' => array(
 
@@ -29,5 +30,8 @@ return array(
         'WbMiner\Job\Processor\SaveImage' => array(
             'WbMiner\Job\Processor\ExtensionSwitcher',
         ),
+        'WbMiner\Job\MainProcessor' => array(
+            'WbMiner\Job\LockingMainProcessor'
+        )
     )
 );

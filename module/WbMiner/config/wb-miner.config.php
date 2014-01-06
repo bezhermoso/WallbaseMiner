@@ -21,6 +21,7 @@ return array(
                 'job_class' => null,
             )
         ),
+        'script_lock_file' => '.wbminer.job-process.lock'
     ),
     'doctrine' => array(
         'driver' => array(

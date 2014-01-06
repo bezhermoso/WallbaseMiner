@@ -82,16 +82,19 @@ class ConsoleController extends AbstractActionController
                 $this->consoleAdapter->writeLine($str);
 
             } else {
-                $str = 'An error was encountered in processing jobs: ' . $result->getParam('Exception')->getMessage();
+
+                $str = $result->getParam('Exception') ? $result->getParam('Exception')->getMessage() : $result->getReason();
                 $this->log(Logger::ERR, $str);
                 $this->consoleAdapter->writeLine($str);
             }
 
         } catch (\Exception $e) {
             $this->log(Logger::CRIT, $e->getMessage());
-            $this->consoleAdapter->writeTextBlock($e->getMessage(), 300, null, 0, 0, ColorInterface::WHITE, ColorInterface::RED);
+            $this->consoleAdapter->writeLine($e->getMessage(), ColorInterface::WHITE, ColorInterface::RED);
         }
 
     }
+
+
 
 } 

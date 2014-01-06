@@ -26,7 +26,7 @@ class ProcessResult
 
     protected $params = array();
 
-    protected $reason;
+    protected $reason = '';
 
     public function __construct($status, JobInterface $job = null, $reason = '')
     {
